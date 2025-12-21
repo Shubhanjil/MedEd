@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -18,7 +19,37 @@ import {
 } from 'lucide-react';
 import './StudentDashboard.css';
 
-function StudentDashboard({ onLogout }) {
+// 2. Remove 'onLogout' from props since we handle it internally now
+function StudentDashboard() {
+  // 3. Initialize the hook
+  const navigate = useNavigate();
+
+  // 4. Create the logout handler
+  const handleLogout = () => {
+    console.log("Logout clicked...");
+    
+    // Clear all storage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Clear any authentication cookies
+    document.cookie.split(";").forEach(cookie => {
+      const name = cookie.split("=")[0].trim();
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    });
+    
+    console.log("Storage cleared, navigating to /");
+    
+    // Use both navigation methods for reliability
+    navigate('/', { replace: true });
+    
+    // Force a full page reload to ensure complete reset
+    setTimeout(() => {
+      window.location.href = '/';
+      window.location.reload();
+    }, 50);
+  };
+
   return (
     <div className="app-container">
       {/* --- Sidebar --- */}
@@ -68,7 +99,8 @@ function StudentDashboard({ onLogout }) {
             <h4>Sarah Johnson</h4>
             <span>Student</span>
           </div>
-          <button onClick={onLogout} className="mini-logout">
+          {/* 5. Update onClick to use local handler */}
+          <button onClick={handleLogout} className="mini-logout" style={{cursor: 'pointer'}}>
             <LogOut size={16} />
           </button>
         </div>
